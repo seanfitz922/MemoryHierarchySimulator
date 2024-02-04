@@ -15,17 +15,19 @@ def main():
     if {virtual_addresses["TLB"]} == 'y':
         pass
     
+    printer = OutputPrinter()
+    
     # output
-    OutputPrinter.print_data_tlb_info(data_tlb)
-    OutputPrinter.print_page_info(page_table)
-    OutputPrinter.print_data_cache_info(data_cache)
-    OutputPrinter.print_L2_cache_info(L2_cache)
-    OutputPrinter.print_address_info(virtual_addresses)
+    printer.print_data_tlb_info(data_tlb)
+    printer.print_page_info(page_table)
+    printer.print_data_cache_info(data_cache)
+    printer.print_L2_cache_info(L2_cache)
+    printer.print_address_info(virtual_addresses)
 
     # table
-    OutputPrinter.print_table_header()
-    OutputPrinter.print_table_data(read_trace())
-    # OutputPrinter.print_sim_stats()
+    printer.print_table_header()
+    printer.print_table_data(read_trace(), page_table)
+    # printer.print_sim_stats()
 
 if __name__ == "__main__":
     main()
