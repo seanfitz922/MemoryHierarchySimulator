@@ -55,27 +55,30 @@ class OutputPrinter:
 
     def calculate_TLB_tag_index(self, virt_address, page_table):
         # binary conversion taken from: https://stackoverflow.com/questions/65022145/convert-binary-to-signed-little-endian-16bit-integer-in-python
-        binary_address = bin(int(virt_address, 16))[2:]
+        binary_address = bin(int(virt_address, 16))[2:].zfill(12)
+
         page_offset = binary_address[-1*(math.ceil(math.log2(int(page_table['Page size'])))):]
         virtual_page_number = binary_address[:math.ceil(math.log2(int(page_table['Number of virtual pages'])))]
+        TLB_index = virtual_page_number[-1]
+        TLB_tag = int(virtual_page_number[:(len(page_offset) - len(virtual_page_number)) +1 ], 2)
 
-        print(virtual_page_number)
+        return TLB_tag, TLB_index
+
 
     def print_table_data(self, trace_data, page_table):
         # adding leading zeros taken from https://ioflood.com/blog/python-zfill/#:~:text=The%20zfill()%20method%20in,the%20actual%20number%20they%20represent.
         for data in trace_data:
             virt_address = data.split(":")[-1].removeprefix('R')
             address_padded = virt_address.zfill(8)
-            tlb_tag = int(data.split(":")[1][0], 16)
 
-            self.calculate_TLB_tag_index(virt_address, page_table)
+            TLB_tag, TLB_index = self.calculate_TLB_tag_index(virt_address, page_table)
 
-            # if int(virt_address[1]) == 0 and int(virt_address[2]) == 0:
-            #     print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {tlb_tag:>6} {'0':>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
-            # elif int(virt_address[1]) == 0 and int(virt_address[2]) != 0:
-            #     print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[2]:>4s} {tlb_tag:>6} {'0':>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
-            # else:
-            #     print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1:]:>4s} {tlb_tag:>6} {'0':>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
+            if int(virt_address[1]) == 0 and int(virt_address[2]) == 0:
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
+            elif int(virt_address[1]) == 0 and int(virt_address[2]) != 0:
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[2]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
+            else:
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1:]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
 
 
 
