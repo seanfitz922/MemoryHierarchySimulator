@@ -34,3 +34,42 @@ The TLB tag is formed by the remaining bits of the VPN.
 '''
 
 
+# Cache Size = 4 sets * 1 (set size) * 16 bytes = 64 bytes
+# block size = line size
+print('-------------------')
+# offset
+print(math.log2(16), 'bits')
+# index
+print(math.log2(4), 'bits')
+# tag
+print(12 - (2+4), 'bits')
+
+# 1100_10|00_|0100 
+#   tag  indx  offset
+
+# 1000_00|01_|1100
+
+# 000101|00|1000
+
+# 011101|10|1000
+#  4 * 16
+# page_offset = 400 % 256
+phys_add = (3 * 256) + 0
+index = (phys_add % 4)
+print(index % 4)
+print(phys_add / (4 * 16))
+# Physical Page Number * Page Size + Page Offset
+# phys / (sets * line size)
+
+# page_offset = 332 % 256
+phys_add = (1 * 256) + 8
+index = (phys_add % 4)
+# print(index % 4)
+print(phys_add / (4 * 16))
+
+phys_add = (2 * 256) + 68
+print(math.floor(phys_add / (4 * 16)))
+
+# CONVERT HEX TO DECIMAL 84 -> 132
+phys_add = (0 * 256) + 132 
+print((phys_add / (4 * 16)))

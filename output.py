@@ -63,6 +63,14 @@ class OutputPrinter:
         TLB_tag = int(virtual_page_number[:(len(page_offset) - len(virtual_page_number)) +1 ], 2)
 
         return TLB_tag, TLB_index
+    
+    def calculate_DC_tag_index(self, page_table):
+        # phys / (sets * line size)
+        phys_address = ((PAGE_NUMBER * int(page_table['Page size'])) + page_offset) 
+        DC_tag = math.floor(phys_address / (sets * line_size))
+        DC_index = phys_address % num_sets
+
+        return DC_tag, DC_index
 
 
     def print_table_data(self, trace_data, page_table):
@@ -72,6 +80,7 @@ class OutputPrinter:
             address_padded = virt_address.zfill(8)
 
             TLB_tag, TLB_index = self.calculate_TLB_tag_index(virt_address, page_table)
+            DC_tag, DC_index = self.calculate_DC_tag_index(page_table)
 
             if int(virt_address[1]) == 0 and int(virt_address[2]) == 0:
                 print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
