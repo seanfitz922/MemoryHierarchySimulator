@@ -29,7 +29,7 @@ def main():
 
     # table
     printer.print_table_header()
-    printer.print_table_data(read_trace(), page_table, data_tlb, tlb_flag)
+    printer.print_table_data(read_trace(), page_table, data_tlb, tlb_flag, data_cache)
     # printer.print_sim_stats()
 
 if __name__ == "__main__":

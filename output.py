@@ -45,7 +45,7 @@ class OutputPrinter:
     # Toggles
     def print_address_info(self, virtual_addresses):
         if virtual_addresses['Virtual addresses'] == 'y':
-            print("The addresses read in are virtual addresses.")
+            print("The addresses read in are virtual addresses.\n")
         else:
             print("FIX ME")
 
@@ -65,18 +65,19 @@ class OutputPrinter:
 
         return TLB_tag, TLB_index
     
-    # def calculate_DC_tag_index(self, page_table):
+    # def calculate_DC_tag_index(self, page_table, data_cache):
     #     # phys / (sets * line size)
-    #     phys_address = ((PAGE_NUMBER * int(page_table['Page size'])) + page_offset) 
+    #     # phys_address = ((PAGE_NUMBER * int(page_table['Page size'])) + page_offset) 
     #     DC_tag = math.floor(phys_address / (sets * line_size))
     #     DC_index = phys_address % num_sets
 
     #     return DC_tag, DC_index
 
 
-    def print_table_data(self, trace_data, page_table, data_tlb, tlb_flag):
+    def print_table_data(self, trace_data, page_table, data_tlb, tlb_flag, data_cache):
         # adding leading zeros taken from https://ioflood.com/blog/python-zfill/#:~:text=The%20zfill()%20method%20in,the%20actual%20number%20they%20represent.
         tlb = TLB(int(data_tlb["Number of sets"]), int(data_tlb["Set size"]))
+        counter = 0
         for data in trace_data:
             virt_address = data.split(":")[-1].removeprefix('R')
             virt_page_num = int(virt_address, 16) // int(page_table["Page size"])
@@ -86,11 +87,11 @@ class OutputPrinter:
                 result = "miss"
                 if tlb.lookup(virt_page_num) == 1:
                     result = "hit"
-
+                    counter +=1
             address_padded = virt_address.zfill(8)
 
             TLB_tag, TLB_index = self.calculate_TLB_tag_index(virt_address, page_table)
-            #DC_tag, DC_index = self.calculate_DC_tag_index(page_table)
+            #DC_index = self.calculate_DC_tag_index(page_table, data_cache)
 
             if int(virt_address[1]) == 0 and int(virt_address[2]) == 0:
                 print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {TLB_tag:>6} {TLB_index:>3s} {result:>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
@@ -99,31 +100,33 @@ class OutputPrinter:
             else:
                 print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1:]:>4s} {TLB_tag:>6} {TLB_index:>3s} {result:>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
 
-    def print_sim_stats(self):
+        self.print_sim_stats(counter, len(trace_data))
+
+    def print_sim_stats(self, dtlb_hits, length):
         print("\nSimulation statistics\n")
 
-        print(f'dtlb hits')
-        print(f'dtlb misses')
-        print(f'dtlb hit ratio\n')
+        print(f'dtlb hits        : {dtlb_hits}')
+        print(f'dtlb misses      : {length - dtlb_hits}')
+        print(f'dtlb hit ratio   : {dtlb_hits / length:.6f}\n')
 
-        print(f'pt hits')
-        print(f'pt faults')
-        print(f'pt hit ratio\n')
+        print(f'pt hits          :  ')
+        print(f'pt faults        :  ')
+        print(f'pt hit ratio     :  \n')
 
-        print(f'dc hits')
-        print(f'dc misses')
-        print(f'dc hit ratio\n')
+        print(f'dc hits          :  ')
+        print(f'dc misses        :  ')
+        print(f'dc hit ratio     :  \n')
 
-        print(f'L2 hits')
-        print(f'L2 misses')
-        print(f'L2 hit ratio\n')
+        print(f'L2 hits          :  ')
+        print(f'L2 misses        :  ')
+        print(f'L2 hit ratio     :  \n')
 
-        print(f'Total reads')
-        print(f'Writes')
-        print(f'Ratio of reads')
+        print(f'Total reads      :  ')
+        print(f'Writes           :  ')
+        print(f'Ratio of read    :  ')
 
-        print(f'main memory refs')
-        print(f'page table refs')
-        print(f'disk refs')
+        print(f'main memory refs :  ')
+        print(f'page table refs  :  ')
+        print(f'disk refs        :')
     
     

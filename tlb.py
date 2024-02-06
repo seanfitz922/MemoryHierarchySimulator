@@ -26,7 +26,14 @@ class TLB:
         for entry in self.entries[hash(virt_page_num) % self.num_sets]:
             if entry.virt_page_num == virt_page_num:
                 # Hit (1), Update LRU counter
-                entry.LRU_counter = max(entry.LRU_counter, max(entry.LRU_counter for entry in self.entries[hash(virt_page_num) % self.num_sets]) + 1)
+                max_LRU_counter_in_set = float('-inf')
+
+                # loop through entries find the max LRU counter
+                for entry in self.entries[hash(virt_page_num) % self.num_sets]:
+                    max_LRU_counter_in_set = max(max_LRU_counter_in_set, entry.LRU_counter)
+
+                # Update the LRU counter for the current entry
+                entry.LRU_counter = max(entry.LRU_counter, max_LRU_counter_in_set + 1)                
                 return 1
 
         # Miss (0), Update TLB with new entry and use LRU
