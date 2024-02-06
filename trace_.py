@@ -1,4 +1,4 @@
-def read_trace(trace_file = 'trace.dat'):
+def read_trace(trace_file):
     trace_data = []
     try:
         with open(trace_file, 'r') as trace:

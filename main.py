@@ -1,11 +1,11 @@
 from config import read_config, parse_section
 from trace_ import read_trace
-from tlb import TLB
 from output import OutputPrinter
+import sys
 
-def main():
+def main(config, trace):
     
-    config = read_config()
+    config = read_config(config)
     data_tlb = parse_section(config['Data TLB configuration'])
     page_table = parse_section(config['Page Table configuration'])
     data_cache = parse_section(config['Data Cache configuration'])
@@ -29,8 +29,11 @@ def main():
 
     # table
     printer.print_table_header()
-    printer.print_table_data(read_trace(), page_table, data_tlb, tlb_flag, data_cache)
+    printer.print_table_data(read_trace(trace), page_table, data_tlb, tlb_flag, data_cache)
     # printer.print_sim_stats()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 3:
+        print("Error inputting files: config, then trace")
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])

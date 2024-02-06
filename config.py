@@ -1,6 +1,6 @@
 import operator as op
 # opens and reads in trace.config file
-def read_config(config_file = 'trace.config'):
+def read_config(config_file):
     section = {}
     try:
         # help taken from https://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list
