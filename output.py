@@ -1,4 +1,5 @@
 import math
+from tlb import TLB
 
 # calculations of index, offset taken from:
 # https://stackoverflow.com/questions/66610406/how-to-find-number-of-bits-in-tag-field-of-cache-block
@@ -64,36 +65,37 @@ class OutputPrinter:
 
         return TLB_tag, TLB_index
     
-    def calculate_DC_tag_index(self, page_table):
-        # phys / (sets * line size)
-        phys_address = ((PAGE_NUMBER * int(page_table['Page size'])) + page_offset) 
-        DC_tag = math.floor(phys_address / (sets * line_size))
-        DC_index = phys_address % num_sets
+    # def calculate_DC_tag_index(self, page_table):
+    #     # phys / (sets * line size)
+    #     phys_address = ((PAGE_NUMBER * int(page_table['Page size'])) + page_offset) 
+    #     DC_tag = math.floor(phys_address / (sets * line_size))
+    #     DC_index = phys_address % num_sets
 
-        return DC_tag, DC_index
+    #     return DC_tag, DC_index
 
 
-    def print_table_data(self, trace_data, page_table):
+    def print_table_data(self, trace_data, page_table, data_tlb):
         # adding leading zeros taken from https://ioflood.com/blog/python-zfill/#:~:text=The%20zfill()%20method%20in,the%20actual%20number%20they%20represent.
+        tlb = TLB(int(data_tlb["Number of sets"]), int(data_tlb["Set size"]))
         for data in trace_data:
             virt_address = data.split(":")[-1].removeprefix('R')
+            virt_page_num = int(virt_address, 16) // int(page_table["Page size"])
+            # hit or miss for tlb
+            result = "miss"
+            if tlb.lookup(virt_page_num) == 1:
+                result = "hit"
+
             address_padded = virt_address.zfill(8)
 
             TLB_tag, TLB_index = self.calculate_TLB_tag_index(virt_address, page_table)
-            DC_tag, DC_index = self.calculate_DC_tag_index(page_table)
+            #DC_tag, DC_index = self.calculate_DC_tag_index(page_table)
 
             if int(virt_address[1]) == 0 and int(virt_address[2]) == 0:
-                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1]:>4s} {TLB_tag:>6} {TLB_index:>3s} {result:>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
             elif int(virt_address[1]) == 0 and int(virt_address[2]) != 0:
-                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[2]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[2]:>4s} {TLB_tag:>6} {TLB_index:>3s} {result:>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
             else:
-                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1:]:>4s} {TLB_tag:>6} {TLB_index:>3s} {'0':>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
-
-
-
-
-
-
+                print(f"{address_padded:>8s} {virt_address[0]:>6s} {virt_address[1:]:>4s} {TLB_tag:>6} {TLB_index:>3s} {result:>4s} {'0':>4s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s} {'0':>6s} {'0':>3s} {'0':>4s}")
 
     def print_sim_stats(self):
         print("\nSimulation statistics\n")

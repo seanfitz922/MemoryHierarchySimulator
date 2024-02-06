@@ -1,5 +1,6 @@
 from config import read_config, parse_section
 from trace_ import read_trace
+from tlb import TLB
 from output import OutputPrinter
 
 def main():
@@ -13,7 +14,7 @@ def main():
 
 
     if {virtual_addresses["TLB"]} == 'y':
-        pass
+        tlb = TLB(int(data_tlb["Number of sets"])) * int(data_tlb["Set size"])
     
     printer = OutputPrinter()
     
@@ -26,7 +27,7 @@ def main():
 
     # table
     printer.print_table_header()
-    printer.print_table_data(read_trace(), page_table)
+    printer.print_table_data(read_trace(), page_table, data_tlb)
     # printer.print_sim_stats()
 
 if __name__ == "__main__":
