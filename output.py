@@ -74,16 +74,18 @@ class OutputPrinter:
     #     return DC_tag, DC_index
 
 
-    def print_table_data(self, trace_data, page_table, data_tlb):
+    def print_table_data(self, trace_data, page_table, data_tlb, tlb_flag):
         # adding leading zeros taken from https://ioflood.com/blog/python-zfill/#:~:text=The%20zfill()%20method%20in,the%20actual%20number%20they%20represent.
         tlb = TLB(int(data_tlb["Number of sets"]), int(data_tlb["Set size"]))
         for data in trace_data:
             virt_address = data.split(":")[-1].removeprefix('R')
             virt_page_num = int(virt_address, 16) // int(page_table["Page size"])
-            # hit or miss for tlb
-            result = "miss"
-            if tlb.lookup(virt_page_num) == 1:
-                result = "hit"
+            result = ''
+            if tlb_flag:
+                # hit or miss for tlb
+                result = "miss"
+                if tlb.lookup(virt_page_num) == 1:
+                    result = "hit"
 
             address_padded = virt_address.zfill(8)
 
